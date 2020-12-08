@@ -39,20 +39,29 @@ public:
             if (p->getType() == TokenType::Number) {
                 result.push_back(p);
             }
-            if (p->getType() == TokenType::Operation) {
+            else if (p->getType() == TokenType::Operation) {
                 while (!stack.empty()) {
                     if (stack.top()->getPriority() >= p->getPriority()) {
                         result.push_back(stack.top());
                         stack.pop();
                     }
-                    else {
-                        break;
-                    }
-
+                    else { break; }
+                        
                 }
-              
-                
                 stack.push(p);
+            }
+            else if (p->getType() == TokenType::BracketOpen) {
+                stack.push(p);
+            }
+            else if (p->getType() == TokenType::BracketClose) {
+                while (!stack.empty()) {
+                    if (stack.top()->getType() != TokenType::BracketOpen) {
+                        result.push_back(stack.top());
+                    }
+                    else { break; }
+   
+                    stack.pop();
+                }
             }
         }
         while (!stack.empty()) {
@@ -83,6 +92,12 @@ public:
                     v.push_back(new TokenMultiply());
                 else if (c == '/')
                     v.push_back(new TokenDivide());
+                else if (c == '^')
+                    v.push_back(new TokenPower());
+                else if (c == '(')
+                    v.push_back(new TokenBracketOpen());
+                else if (c == ')')
+                    v.push_back(new TokenBracketClose());
             }
 
         }
@@ -99,9 +114,9 @@ int main() {
     Calculator calc;
 
     vector<Token*> v = calc.parse(s);
-    //cout << 1;
+
     vector<Token*> u = calc.transform(v);
-    cout << 1;
+
     for (Token* p : u) {
         if (p->getType() == TokenType::Number) {
             cout << p->getValue();
@@ -111,22 +126,9 @@ int main() {
         }
     }
     cout << endl;
+
     double res = calc.calculate(u);
     cout << res;
-    /*tokens.push_back (new TokenNumber(3));
-    tokens.push_back (new TokenNumber(15));
-    tokens.push_back (new TokenMinus());
-    tokens.push_back (new TokenNumber(4));
-    tokens.push_back (new TokenMultiply());*/
-
-    /*tokens.push_back(new TokenNumber(3));
-    tokens.push_back(new TokenMinus());
-    tokens.push_back(new TokenNumber(15));
-    tokens.push_back(new TokenMultiply());
-    tokens.push_back(new TokenNumber(4));
-    Calculator calc;
-    tokens = calc.transform(tokens);
-    cout << calc.calculate(tokens)<<endl;*/
 
     return 0;
 }
