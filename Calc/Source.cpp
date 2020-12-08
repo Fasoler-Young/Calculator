@@ -15,15 +15,21 @@ public:
                 stack.push(p->getValue());
             }
             if (p->getType() == TokenType::Operation) {
+
                 double op1 = stack.top();
                 stack.pop();
-                double op2 = stack.top();
-                stack.pop();
+                double mid_result;
+                if (p->isUnary()) 
+                    mid_result = p->apply(op1);
+                else {
+                    double op2 = stack.top();
+                    stack.pop();
+                    mid_result = p->apply(op2, op1);
+                    cout << op2 << p->getSymbol() << op1 << "=" << mid_result << endl;
+                }
 
-                double mid_result = p->apply(op2, op1);
                 stack.push(mid_result);
 
-                cout << op2 << p->getSymbol() << op1 << "=" << mid_result << endl;
             }
 
 
@@ -74,6 +80,7 @@ public:
     vector<Token*>parse(string s) {
         vector<Token*> v;
         string buf;
+        bool unary = true;
         for (char c : s) {
             if ('0' <= c && c <= '9' || c == '.')
                 buf += c;
@@ -82,22 +89,30 @@ public:
                     double a = stod(buf);
                     buf = "";
                     v.push_back(new TokenNumber(a));
+                    unary = false;
                 }
 
                 if (c == '+')
                     v.push_back(new TokenPlus());
                 else if (c == '-')
-                    v.push_back(new TokenMinus());
+                    if (unary)
+                        v.push_back(new TokenUnaryMinus());
+                    else
+                        v.push_back(new TokenMinus());
                 else if (c == '*')
                     v.push_back(new TokenMultiply());
                 else if (c == '/')
                     v.push_back(new TokenDivide());
                 else if (c == '^')
                     v.push_back(new TokenPower());
+                else if (c == '!')
+                    v.push_back(new TokenFactorial());
                 else if (c == '(')
                     v.push_back(new TokenBracketOpen());
                 else if (c == ')')
                     v.push_back(new TokenBracketClose());
+
+                unary = true;
             }
 
         }

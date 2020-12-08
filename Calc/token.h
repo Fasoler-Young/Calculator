@@ -17,10 +17,11 @@ public:
     // Number: getValue
     virtual double getValue() { throw "Method not supported"; }
 
-    // Operation: getPriority, isLeftAssociative, apply, getSymbol
+    // Operation: getPriority, isLeftAssociative, apply, getSymbol, isUnary
     virtual int getPriority() { throw "Method not supported"; }
+    virtual bool isUnary() { throw "Method not supported"; }
     virtual bool isLeftAssociative() { throw "Method not supported"; }
-    virtual double apply(double op1, double op2) { throw "Method not supported"; }
+    virtual double apply(double op1, double op2=0.) { throw "Method not supported"; }
     virtual char getSymbol() { throw "Method not supported"; }
 
 };
@@ -66,6 +67,7 @@ class TokenPlus : public TokenOperation
 {
 public:
     int getPriority() override { return 1; }
+    bool isUnary() override { return false; }
     bool isLeftAssociative() override { return true; }
     char getSymbol() override { return '+'; }
     double apply(double op1, double op2) { return op1 + op2; }
@@ -75,9 +77,20 @@ class TokenMinus : public TokenOperation
 {
 public:
     int getPriority() override { return 1; }
+    bool isUnary() override { return false; }
     bool isLeftAssociative() override { return true; }
     char getSymbol() override { return '-'; }
-    double apply(double op2, double op1 = 0.) { return op1 - op2; }
+    double apply(double op1, double op2) { return op1 - op2; }
+};
+
+class TokenUnaryMinus : public TokenOperation
+{
+public:
+    int getPriority() override { return 1; }
+    bool isUnary() override { return true; }
+    bool isLeftAssociative() override { return true; }
+    char getSymbol() override { return '-'; }
+    double apply (double op1, double op2) override { return -op1; }
 };
 
 class TokenMultiply : public TokenOperation
@@ -85,6 +98,7 @@ class TokenMultiply : public TokenOperation
 public:
     int getPriority() override { return 2; }
     char getSymbol() override { return '*'; }
+    bool isUnary() override { return false; }
     bool isLeftAssociative() override { return true; }
     double apply(double op1, double op2) { return op1 * op2; }
 };
@@ -93,6 +107,7 @@ class TokenDivide : public TokenOperation
 {
 public:
     int getPriority() override { return 2; }
+    bool isUnary() override { return false; }
     bool isLeftAssociative() override { return true; }
     char getSymbol() override { return '/'; }
     double apply(double op1, double op2) { return op1 / op2; }
@@ -102,7 +117,18 @@ class TokenPower : public TokenOperation
 {
 public:
     int getPriority() override { return 3; }
+    bool isUnary() override { return false; }
     bool isLeftAssociative() override { return true; }
     char getSymbol() override { return '^'; }
     double apply(double op1, double op2) { return pow(op1, op2); }
+};
+
+class TokenFactorial : public TokenOperation
+{
+public:
+    int getPriority() override { return 3; }
+    bool isUnary() override { return true; }
+    bool isLeftAssociative() override { return true; }
+    char getSymbol() override { return '!'; }
+    double apply(double op1, double op2=0.) { return op1 > 0? op1 * apply(op1 - 1) : 1; }
 };
